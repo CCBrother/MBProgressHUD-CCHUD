@@ -54,6 +54,9 @@
 //信息提示
 + (void)showInfoMessage:(NSString *)message;
 
+//显示进度条
++ (void)showProgressHudWithMessage:(NSString *)message;
+
 #pragma mark - 隐藏
 //隐藏
 + (void)hideHUD;

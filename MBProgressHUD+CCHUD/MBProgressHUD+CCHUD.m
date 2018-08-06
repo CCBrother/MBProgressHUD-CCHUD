@@ -9,11 +9,17 @@
 #import "MBProgressHUD+CCHUD.h"
 #import "AppDelegate.h"
 
+//设置RGB颜色
+#define ZKRGBColor(r, g, b) [UIColor colorWithRed:(r)/255.0 green:(g)/255.0 blue:(b)/255.0 alpha:1.0]//用10进制表示颜色，例如（255,255,255）黑色
+
+#define SCREEN_WIDTH  [UIScreen mainScreen].bounds.size.width
+#define SCREEN_HEIGHT [UIScreen mainScreen].bounds.size.height
+
 @implementation MBProgressHUD (CCHUD)
 
 //window显示文字
 + (void)showInWindowMessage:(NSString *)message {
-    [self showMessage:message delayTime:1.0 isWindow:YES];
+    [self showMessage:message delayTime:1.5 isWindow:YES];
 }
 
 //window显示文字延时
@@ -33,13 +39,13 @@
 
 //window自定义图片
 + (void)showInWindowCustomImage:(NSString *)imageName message:(NSString *)message {
-    [self showCustomImage:imageName message:message isWindow:YES isSquare:NO];
+    [self showCustomImage:imageName message:message isWindow:YES];
 }
 
 #pragma mark - 显示在view
 //view显示文字
 + (void)showInViewMessage:(NSString *)message {
-     [self showMessage:message delayTime:1.0 isWindow:NO];
+    [self showMessage:message delayTime:1.5 isWindow:NO];
 }
 
 //view显示文字延时
@@ -59,7 +65,7 @@
 
 //view自定义图片
 + (void)showInViewCustomImage:(NSString *)imageName message:(NSString *)message {
-    [self showCustomImage:imageName message:message isWindow:NO isSquare:NO];
+    [self showCustomImage:imageName message:message isWindow:NO];
 }
 
 #pragma mark - 操作结果提示
@@ -70,22 +76,29 @@
 
 //失败提示
 + (void)showFailMessage:(NSString *)message {
-     [self showCustomImage:@"MBHUD_Error" message:message];
+    [self showCustomImage:@"MBHUD_Error" message:message];
 }
 
 //警告提示
 + (void)showWarnMessage:(NSString *)message {
-     [self showCustomImage:@"MBHUD_Warn" message:message];
+    [self showCustomImage:@"MBHUD_Warn" message:message];
 }
 
 //信息提示
 + (void)showInfoMessage:(NSString *)message {
-     [self showCustomImage:@"MBHUD_Info" message:message];
+    [self showCustomImage:@"MBHUD_Info" message:message];
 }
 
 //默认显示在window
 + (void)showCustomImage:(NSString *)imageName message:(NSString *)message {
-    [self showCustomImage:imageName message:message isWindow:YES isSquare:YES];
+    [self showCustomImage:imageName message:message isWindow:YES];
+}
+
++ (void)showProgressHudWithMessage:(NSString *)message {
+    MBProgressHUD *hud = [self createMBProgerssHUDWithMessage:message isWindow:YES];
+    hud.mode = MBProgressHUDModeAnnularDeterminate;
+    hud.bezelView.color = [UIColor  blackColor];
+    hud.contentColor = [UIColor whiteColor];
 }
 
 #pragma mark - 隐藏
@@ -95,7 +108,6 @@
     [self hideHUDForView:windowView animated:YES];
     [self hideHUDForView:[self currentUIViewController].view animated:YES];
 }
-
 
 #pragma mark - Private
 /**
@@ -107,7 +119,8 @@
     
     MBProgressHUD *hud  = [self createMBProgerssHUDWithMessage:message isWindow:isWindow];
     hud.mode = MBProgressHUDModeIndeterminate;
-    hud.label.textColor = [UIColor blackColor];
+    hud.activityIndicatorColor = [UIColor whiteColor];
+    hud.bezelView.color = [UIColor  blackColor];
     hud.square = YES;
     if (delayTime > 0) {
         [hud hideAnimated:YES afterDelay:delayTime];
@@ -119,13 +132,15 @@
  */
 + (void)showCustomImage:(NSString *)imageName
                 message:(NSString *)message
-               isWindow:(BOOL)isWindow
-               isSquare:(BOOL)isSquare {
+               isWindow:(BOOL)isWindow {
     
     MBProgressHUD *hud = [self createMBProgerssHUDWithMessage:message isWindow:isWindow];
     hud.mode = MBProgressHUDModeCustomView;
-    hud.square = isSquare;
+    hud.square = YES;
+    hud.contentColor = [UIColor whiteColor];
+    hud.bezelView.backgroundColor = ZKRGBColor(30, 30, 30);
     hud.customView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:imageName]];
+    hud.animationType = MBProgressHUDAnimationZoomOut;
     [hud hideAnimated:YES afterDelay:1.5];
 }
 
@@ -138,6 +153,9 @@
     
     MBProgressHUD *hud = [self createMBProgerssHUDWithMessage:message isWindow:isWindow];
     hud.mode = MBProgressHUDModeText;
+    hud.label.textColor = [UIColor whiteColor];
+    hud.bezelView.backgroundColor = ZKRGBColor(30, 30, 30);
+    hud.label.font = [UIFont systemFontOfSize:12.0f];
     [hud hideAnimated:YES afterDelay:delayTime];
 }
 
@@ -149,11 +167,10 @@
     
     UIView *view = isWindow ? (UIView *)[UIApplication sharedApplication].delegate.window : [self currentUIViewController].view;
     MBProgressHUD *hud = [MBProgressHUD showHUDAddedTo:view animated:YES];
-    hud.label.text = message ? message : @"加载中...";
-    hud.label.textColor = [UIColor whiteColor];
-    hud.label.font = [UIFont systemFontOfSize:15.0f];
+    hud.label.textColor = ZKRGBColor(255, 255, 255);
+    hud.label.font = [UIFont systemFontOfSize:12.0f];
+    hud.label.text = message;
     hud.removeFromSuperViewOnHide = YES;
-    hud.bezelView.color = [[UIColor blackColor] colorWithAlphaComponent:0.6];
     return hud;
 }
 
